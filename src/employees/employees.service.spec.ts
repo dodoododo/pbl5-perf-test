@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MailsService } from '../mails/mails.service.js';
+import { NotificationsService } from '../notifications/notifications.service.js';
 import { PrismaService } from '../prisma.service.js';
 import { EmployeesService } from './employees.service.js';
 
@@ -12,6 +13,7 @@ describe('EmployeesService', () => {
         EmployeesService,
         { provide: PrismaService, useValue: {} },
         { provide: MailsService, useValue: {} },
+        { provide: NotificationsService, useValue: {} },
       ],
     }).compile();
 

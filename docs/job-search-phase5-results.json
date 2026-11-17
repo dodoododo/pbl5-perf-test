@@ -1,0 +1,769 @@
+{
+  "date": "2026-11-17",
+  "node": "v22.14.0",
+  "prisma": "6.19.3",
+  "scope": "Read-only, q=Java, page=1/2, limit=10, anonymous; one outer operation at a time; page/count concurrency retained. Shared data was not frozen or changed.",
+  "total": 2233,
+  "initialComparison": {
+    "measurements": [
+      {
+        "label": "connect",
+        "wallMs": 131.24089999999978,
+        "queryEventCount": 0
+      },
+      {
+        "label": "firstPing",
+        "wallMs": 1410.7302999999997,
+        "queryEventCount": 1
+      },
+      {
+        "label": "warmPing1",
+        "wallMs": 98.62059999999974,
+        "queryEventCount": 1
+      },
+      {
+        "label": "warmPing2",
+        "wallMs": 76.2170000000001,
+        "queryEventCount": 1
+      },
+      {
+        "label": "serviceSearch",
+        "wallMs": 3645.377,
+        "queryEventCount": 12
+      },
+      {
+        "label": "pageWithoutRelations",
+        "wallMs": 1613.3523999999998,
+        "queryEventCount": 1
+      },
+      {
+        "label": "pageWithRelations",
+        "wallMs": 2208.9755999999998,
+        "queryEventCount": 6
+      },
+      {
+        "label": "countStandalone",
+        "wallMs": 1097.1562000000013,
+        "queryEventCount": 1
+      }
+    ],
+    "after": {
+      "filterResolutionMs": 1257.6970999999999,
+      "findManyMs": 2381.6723999999995,
+      "countMs": 1697.7925000000005,
+      "salaryFilterMs": 0,
+      "mappingMs": 5.197500000000218,
+      "documentsReturned": 10,
+      "candidateDocuments": 0,
+      "countExecuted": true,
+      "relationQueries": {
+        "categoryKeyword": {
+          "durationMs": 1009.9476999999997,
+          "rowsReturned": 16,
+          "failed": false
+        },
+        "companyKeyword": {
+          "durationMs": 1013.8448000000003,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "jobTypeKeyword": {
+          "durationMs": 562.2557999999999,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "skillKeyword": {
+          "durationMs": 724.8595,
+          "rowsReturned": 99,
+          "failed": false
+        },
+        "skillJobs": {
+          "durationMs": 530.4152999999997,
+          "rowsReturned": 2235,
+          "failed": false
+        }
+      }
+    },
+    "comparison": {
+      "identicalFilterOrderAndPagination": true,
+      "samePageIds": true,
+      "sameServicePageIds": true,
+      "sameTotal": true,
+      "rowsWithoutRelations": 10,
+      "rowsWithRelations": 10,
+      "scalarResultJsonBytes": 30011,
+      "relationResultJsonBytes": 34954
+    }
+  },
+  "actualPrismaExplains": [
+    {
+      "label": "pageWithoutRelations",
+      "collection": "JobPost",
+      "explainWallMs": 2592.0136999999995,
+      "cursorExecutionMs": 1359,
+      "cursorDocsExamined": 6361,
+      "cursorKeysExamined": 6361,
+      "cursorReturned": 10,
+      "winningStages": [
+        "PROJECTION_SIMPLE",
+        "SORT",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "aggregationStages": []
+    },
+    {
+      "label": "pageWithRelations",
+      "collection": "JobPost",
+      "explainWallMs": 2447.892300000003,
+      "cursorExecutionMs": 1364,
+      "cursorDocsExamined": 6361,
+      "cursorKeysExamined": 6361,
+      "cursorReturned": 10,
+      "winningStages": [
+        "PROJECTION_SIMPLE",
+        "SORT",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "aggregationStages": []
+    },
+    {
+      "label": "pageWithRelations",
+      "collection": "Company",
+      "explainWallMs": 155.57530000000042,
+      "cursorExecutionMs": 0,
+      "cursorDocsExamined": 9,
+      "cursorKeysExamined": 17,
+      "cursorReturned": 9,
+      "winningStages": [
+        "PROJECTION_SIMPLE",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "aggregationStages": []
+    },
+    {
+      "label": "pageWithRelations",
+      "collection": "Category",
+      "explainWallMs": 96.58190000000104,
+      "cursorExecutionMs": 0,
+      "cursorDocsExamined": 8,
+      "cursorKeysExamined": 14,
+      "cursorReturned": 8,
+      "winningStages": [
+        "PROJECTION_SIMPLE",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "aggregationStages": []
+    },
+    {
+      "label": "pageWithRelations",
+      "collection": "JobType",
+      "explainWallMs": 115.39310000000114,
+      "cursorExecutionMs": 0,
+      "cursorDocsExamined": 1,
+      "cursorKeysExamined": 1,
+      "cursorReturned": 1,
+      "winningStages": [
+        "PROJECTION_SIMPLE",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "aggregationStages": []
+    },
+    {
+      "label": "pageWithRelations",
+      "collection": "JobPostSkill",
+      "explainWallMs": 114.1849000000002,
+      "cursorExecutionMs": 2,
+      "cursorDocsExamined": 84,
+      "cursorKeysExamined": 92,
+      "cursorReturned": 84,
+      "winningStages": [
+        "SORT",
+        "PROJECTION_SIMPLE",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "aggregationStages": []
+    },
+    {
+      "label": "pageWithRelations",
+      "collection": "Skill",
+      "explainWallMs": 119.90849999999773,
+      "cursorExecutionMs": 2,
+      "cursorDocsExamined": 56,
+      "cursorKeysExamined": 103,
+      "cursorReturned": 56,
+      "winningStages": [
+        "PROJECTION_SIMPLE",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "aggregationStages": []
+    },
+    {
+      "label": "countStandalone",
+      "collection": "JobPost",
+      "explainWallMs": 2434.438000000002,
+      "cursorExecutionMs": 1005,
+      "cursorDocsExamined": 6361,
+      "cursorKeysExamined": 6361,
+      "cursorReturned": 1,
+      "winningStages": [
+        "GROUP",
+        "FETCH",
+        "IXSCAN"
+      ],
+      "aggregationStages": []
+    }
+  ],
+  "candidate": {
+    "measurements": [
+      {
+        "label": "connect",
+        "wallMs": 265.8661000000002,
+        "queryEventCount": 0
+      },
+      {
+        "label": "firstPing",
+        "wallMs": 1222.8926999999999,
+        "queryEventCount": 1
+      },
+      {
+        "label": "warmPing1",
+        "wallMs": 84.82470000000012,
+        "queryEventCount": 1
+      },
+      {
+        "label": "warmPing2",
+        "wallMs": 96.01959999999963,
+        "queryEventCount": 1
+      },
+      {
+        "label": "serviceSearch",
+        "wallMs": 3006.0318000000007,
+        "queryEventCount": 12
+      },
+      {
+        "label": "pageWithoutRelations",
+        "wallMs": 1705.9368999999997,
+        "queryEventCount": 1
+      },
+      {
+        "label": "pageWithRelations",
+        "wallMs": 2234.428,
+        "queryEventCount": 6
+      },
+      {
+        "label": "countStandalone",
+        "wallMs": 1164.6116999999995,
+        "queryEventCount": 1
+      },
+      {
+        "label": "compactPageIds",
+        "wallMs": 148.62029999999868,
+        "queryEventCount": 1
+      },
+      {
+        "label": "compactPageHydration",
+        "wallMs": 695.1114000000016,
+        "queryEventCount": 6
+      },
+      {
+        "label": "compactCount",
+        "wallMs": 157.20589999999902,
+        "queryEventCount": 1
+      }
+    ],
+    "equality": {
+      "identicalRawPage": true,
+      "sameTotal": true
+    },
+    "explains": [
+      {
+        "label": "compactPageIds",
+        "collection": "JobPost",
+        "explainWallMs": 272.3780000000006,
+        "cursorExecutionMs": 51,
+        "cursorDocsExamined": 6361,
+        "cursorKeysExamined": 6361,
+        "cursorReturned": 10,
+        "winningStages": [
+          "PROJECTION_SIMPLE",
+          "SORT",
+          "FETCH",
+          "IXSCAN"
+        ],
+        "aggregationStages": []
+      },
+      {
+        "label": "compactCount",
+        "collection": "JobPost",
+        "explainWallMs": 253.26499999999942,
+        "cursorExecutionMs": 47,
+        "cursorDocsExamined": 6361,
+        "cursorKeysExamined": 6361,
+        "cursorReturned": 1,
+        "winningStages": [
+          "GROUP",
+          "FETCH",
+          "IXSCAN"
+        ],
+        "aggregationStages": [
+          {
+            "stage": "$cursor",
+            "executionTimeMillisEstimate": 45,
+            "nReturned": 1
+          },
+          {
+            "stage": "$project",
+            "executionTimeMillisEstimate": 45,
+            "nReturned": 1
+          }
+        ]
+      }
+    ]
+  },
+  "sameConnectionPair": {
+    "measurements": [
+      {
+        "label": "connect",
+        "wallMs": 114.50859999999989,
+        "queryEventCount": 0
+      },
+      {
+        "label": "firstPing",
+        "wallMs": 643.7460000000001,
+        "queryEventCount": 1
+      },
+      {
+        "label": "warmPing1",
+        "wallMs": 39.835299999999734,
+        "queryEventCount": 1
+      },
+      {
+        "label": "warmPing2",
+        "wallMs": 37.76729999999998,
+        "queryEventCount": 1
+      },
+      {
+        "label": "serviceSearch",
+        "wallMs": 1296.9367000000002,
+        "queryEventCount": 13
+      },
+      {
+        "label": "baselineServiceSearch",
+        "wallMs": 2239.6261000000004,
+        "queryEventCount": 12
+      },
+      {
+        "label": "pageWithoutRelations",
+        "wallMs": 1448.0891000000001,
+        "queryEventCount": 1
+      },
+      {
+        "label": "pageWithRelations",
+        "wallMs": 1603.5603999999985,
+        "queryEventCount": 6
+      },
+      {
+        "label": "countStandalone",
+        "wallMs": 1007.7961000000014,
+        "queryEventCount": 1
+      }
+    ],
+    "before": {
+      "filterResolutionMs": 496.2974000000004,
+      "findManyMs": 1741.1003999999994,
+      "countMs": 1398.1255,
+      "salaryFilterMs": 0,
+      "mappingMs": 1.3777000000000044,
+      "documentsReturned": 10,
+      "candidateDocuments": 0,
+      "countExecuted": true,
+      "relationQueries": {
+        "categoryKeyword": {
+          "durationMs": 47.45049999999992,
+          "rowsReturned": 16,
+          "failed": false
+        },
+        "companyKeyword": {
+          "durationMs": 57.381500000000415,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "jobTypeKeyword": {
+          "durationMs": 46.36170000000038,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "skillKeyword": {
+          "durationMs": 282.90179999999964,
+          "rowsReturned": 99,
+          "failed": false
+        },
+        "skillJobs": {
+          "durationMs": 211.4405999999999,
+          "rowsReturned": 2235,
+          "failed": false
+        }
+      }
+    },
+    "after": {
+      "filterResolutionMs": 590.7402999999999,
+      "findManyMs": 700.5365000000002,
+      "countMs": 371.90149999999994,
+      "salaryFilterMs": 0,
+      "mappingMs": 3.4726999999998043,
+      "documentsReturned": 10,
+      "candidateDocuments": 0,
+      "countExecuted": true,
+      "relationQueries": {
+        "categoryKeyword": {
+          "durationMs": 307.64850000000024,
+          "rowsReturned": 16,
+          "failed": false
+        },
+        "companyKeyword": {
+          "durationMs": 501.26009999999997,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "jobTypeKeyword": {
+          "durationMs": 482.40319999999974,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "skillKeyword": {
+          "durationMs": 367.13369999999986,
+          "rowsReturned": 99,
+          "failed": false
+        },
+        "skillJobs": {
+          "durationMs": 221.35909999999967,
+          "rowsReturned": 2235,
+          "failed": false
+        }
+      },
+      "databaseStrategy": "compactMembership",
+      "pageSelectionMs": 406.3791000000001,
+      "hydrationMs": 292.9685000000004
+    },
+    "apiEquality": {
+      "identicalCompleteResponse": true
+    },
+    "comparison": {
+      "identicalFilterOrderAndPagination": true,
+      "samePageIds": true,
+      "sameServicePageIds": true,
+      "sameTotal": true,
+      "rowsWithoutRelations": 10,
+      "rowsWithRelations": 10,
+      "scalarResultJsonBytes": 30011,
+      "relationResultJsonBytes": 34954
+    }
+  },
+  "httpVerification": {
+    "measurements": [
+      {
+        "label": "connect",
+        "wallMs": 152.98249999999985,
+        "queryEventCount": 0
+      },
+      {
+        "label": "firstPing",
+        "wallMs": 447.279,
+        "queryEventCount": 1
+      },
+      {
+        "label": "warmPing1",
+        "wallMs": 37.06040000000007,
+        "queryEventCount": 1
+      },
+      {
+        "label": "warmPing2",
+        "wallMs": 38.902900000000045,
+        "queryEventCount": 1
+      },
+      {
+        "label": "serviceSearch",
+        "wallMs": 1024.7852999999998,
+        "queryEventCount": 13
+      },
+      {
+        "label": "baselineServiceSearch",
+        "wallMs": 2074.9901999999997,
+        "queryEventCount": 12
+      },
+      {
+        "label": "pageWithoutRelations",
+        "wallMs": 1497.4897,
+        "queryEventCount": 1
+      },
+      {
+        "label": "pageWithRelations",
+        "wallMs": 1769.2660000000005,
+        "queryEventCount": 6
+      },
+      {
+        "label": "countStandalone",
+        "wallMs": 1036.9367000000002,
+        "queryEventCount": 1
+      },
+      {
+        "label": "httpPage1",
+        "wallMs": 942.0277999999998,
+        "queryEventCount": 13
+      },
+      {
+        "label": "httpPage2",
+        "wallMs": 1047.5655000000006,
+        "queryEventCount": 13
+      },
+      {
+        "label": "httpInvalidPagination",
+        "wallMs": 6.337600000000748,
+        "queryEventCount": 0
+      },
+      {
+        "label": "baselinePage2",
+        "wallMs": 1796.8598999999995,
+        "queryEventCount": 12
+      }
+    ],
+    "before": {
+      "filterResolutionMs": 400.15549999999985,
+      "findManyMs": 1673.1897,
+      "countMs": 1133.8137999999994,
+      "salaryFilterMs": 0,
+      "mappingMs": 1.3145000000004075,
+      "documentsReturned": 10,
+      "candidateDocuments": 0,
+      "countExecuted": true,
+      "relationQueries": {
+        "categoryKeyword": {
+          "durationMs": 38.64130000000023,
+          "rowsReturned": 16,
+          "failed": false
+        },
+        "companyKeyword": {
+          "durationMs": 45.5920000000001,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "jobTypeKeyword": {
+          "durationMs": 38.4991,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "skillKeyword": {
+          "durationMs": 225.86220000000003,
+          "rowsReturned": 99,
+          "failed": false
+        },
+        "skillJobs": {
+          "durationMs": 173.3977,
+          "rowsReturned": 2235,
+          "failed": false
+        }
+      }
+    },
+    "after": {
+      "filterResolutionMs": 437.8379,
+      "findManyMs": 570.0914000000002,
+      "countMs": 341.75850000000037,
+      "salaryFilterMs": 0,
+      "mappingMs": 15.77390000000014,
+      "documentsReturned": 10,
+      "candidateDocuments": 0,
+      "countExecuted": true,
+      "relationQueries": {
+        "categoryKeyword": {
+          "durationMs": 86.0489,
+          "rowsReturned": 16,
+          "failed": false
+        },
+        "companyKeyword": {
+          "durationMs": 234.7231999999999,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "jobTypeKeyword": {
+          "durationMs": 48.238200000000006,
+          "rowsReturned": 0,
+          "failed": false
+        },
+        "skillKeyword": {
+          "durationMs": 243.91329999999994,
+          "rowsReturned": 99,
+          "failed": false
+        },
+        "skillJobs": {
+          "durationMs": 192.70360000000005,
+          "rowsReturned": 2235,
+          "failed": false
+        }
+      },
+      "databaseStrategy": "compactMembership",
+      "pageSelectionMs": 336.9938000000002,
+      "hydrationMs": 232.9055000000003
+    },
+    "apiEquality": {
+      "identicalCompleteResponse": true
+    },
+    "comparison": {
+      "identicalFilterOrderAndPagination": true,
+      "samePageIds": true,
+      "sameServicePageIds": true,
+      "sameTotal": true,
+      "rowsWithoutRelations": 10,
+      "rowsWithRelations": 10,
+      "scalarResultJsonBytes": 30011,
+      "relationResultJsonBytes": 34954
+    },
+    "httpSmoke": {
+      "statuses": [
+        200,
+        200,
+        400
+      ],
+      "page1EqualsService": true,
+      "page2EqualsBaseline": true,
+      "identicalTotals": true,
+      "pagesDisjoint": true
+    }
+  },
+  "pageWithRelationsSpans": [
+    {
+      "name": "prisma:client:serialize",
+      "durationMs": 1.5131
+    },
+    {
+      "name": "prisma:engine:connection",
+      "durationMs": 0.0361
+    },
+    {
+      "name": "prisma:engine:db_query",
+      "durationMs": 1704.0073
+    },
+    {
+      "name": "prisma:engine:db_query",
+      "durationMs": 78.4903
+    },
+    {
+      "name": "prisma:engine:db_query",
+      "durationMs": 112.3825
+    },
+    {
+      "name": "prisma:engine:db_query",
+      "durationMs": 91.614
+    },
+    {
+      "name": "prisma:engine:db_query",
+      "durationMs": 109.9175
+    },
+    {
+      "name": "prisma:engine:db_query",
+      "durationMs": 93.8026
+    },
+    {
+      "name": "prisma:engine:serialize",
+      "durationMs": 1.8017
+    },
+    {
+      "name": "prisma:engine:response_json_serialization",
+      "durationMs": 0.1721
+    },
+    {
+      "name": "prisma:engine:query",
+      "durationMs": 2228.9142
+    },
+    {
+      "name": "prisma:client:operation",
+      "durationMs": 2233.9047
+    }
+  ],
+  "queryShapes": {
+    "originalPage": {
+      "collection": "JobPost",
+      "stages": [
+        "$match",
+        "$sort",
+        "$skip",
+        "$limit",
+        "$project"
+      ],
+      "operators": {
+        "$match": 1,
+        "$expr": 1,
+        "$and": 9,
+        "$eq": 1960,
+        "$literal": 1960,
+        "$ne": 8,
+        "$or": 3,
+        "$regexMatch": 5,
+        "$sort": 1,
+        "$skip": 1,
+        "$limit": 1,
+        "$project": 1
+      },
+      "inArrayLengths": [],
+      "queryTextBytes": 87548,
+      "parsed": true,
+      "emittedAfterMs": 1674.0776999999998,
+      "durationMs": 1621
+    },
+    "compactPage": {
+      "collection": "JobPost",
+      "stages": [
+        "$match",
+        "$sort",
+        "$skip",
+        "$limit",
+        "$project"
+      ],
+      "operators": {
+        "$match": 1,
+        "$and": 1,
+        "$or": 1,
+        "$regex": 5,
+        "$options": 5,
+        "$in": 2,
+        "$sort": 1,
+        "$skip": 1,
+        "$limit": 1,
+        "$project": 1
+      },
+      "inArrayLengths": [
+        16,
+        1943
+      ],
+      "queryTextBytes": 12185,
+      "parsed": true,
+      "emittedAfterMs": 994.4892,
+      "durationMs": 350
+    }
+  },
+  "limitations": {
+    "queryEventsAreNotWireRoundTrips": true,
+    "networkAndHydrationCannotBeIsolatedFromWallClock": true,
+    "explainIsSeparateExecution": true
+  },
+  "jmeter": {
+    "executed": false,
+    "reason": "JMeter executable not installed; XML structure validated only"
+  },
+  "verification": {
+    "isolatedNestBuild": true,
+    "jestSuites": 26,
+    "jestTests": 165,
+    "baselineTestsRetained": 140,
+    "nodeTests": 13,
+    "jmxXmlValid": true,
+    "gitDiffCheck": true,
+    "jmeterExecuted": false
+  }
+}

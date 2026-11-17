@@ -260,6 +260,7 @@ model JobPost {
   @@index([category_id, is_active])
   @@index([job_type_id, is_active])
   @@index([employee_id])
+  @@index([is_active, created_date(sort: Desc), job_post_id(sort: Desc)], map: "jobs_search_active_created_id")
 }
 
 model JobAiCriteriaCache {
@@ -359,6 +360,7 @@ model JobPostSkill {
 
   @@unique([job_post_id, skill_id])
   @@index([skill_id])
+  @@index([skill_id, job_post_id], map: "jobs_search_skill_job")
 }
 
 model JobType {

@@ -316,7 +316,7 @@ describe('AiScreeningService', () => {
           finalScore: rule.ruleScore,
           riskFlags: [],
         },
-        model: 'qwen2.5:7b + rule-score-v2-dynamic-weights',
+        model: 'qwen2.5:3b + rule-score-v2-dynamic-weights',
         isFallback: false,
       }));
 
@@ -367,7 +367,7 @@ describe('AiScreeningService', () => {
         strengths: [],
         concerns: [],
         rawResult: {},
-        model: 'qwen2.5:7b + rule-score-v2-dynamic-weights',
+        model: 'qwen2.5:3b + rule-score-v2-dynamic-weights',
         isFallback: false,
       });
 
@@ -462,7 +462,7 @@ describe('AiScreeningService', () => {
       strengths: ['TypeScript'],
       concerns: ['Can xem xet them'],
       rawResult: { score: 82 },
-      model: 'qwen2.5:7b',
+      model: 'qwen2.5:3b',
       isFallback: false,
     });
 
@@ -479,7 +479,7 @@ describe('AiScreeningService', () => {
         ai_recommendation: 'LOW_MATCH',
         ai_summary: 'Phu hop',
         ai_screened_by_id: 1,
-        ai_model: 'qwen2.5:7b + rule-score-v2-dynamic-weights',
+        ai_model: 'qwen2.5:3b + rule-score-v2-dynamic-weights',
       }),
     });
     const updateData = (
@@ -639,7 +639,7 @@ describe('AiScreeningService', () => {
     expect(jest.mocked(axios.post)).toHaveBeenCalledWith(
       'http://localhost:11434/api/generate',
       expect.objectContaining({
-        model: 'qwen2.5:7b',
+        model: 'qwen2.5:3b',
         format: 'json',
         stream: false,
         options: { temperature: 0.1, num_predict: 500 },
@@ -775,7 +775,7 @@ describe('AiScreeningService', () => {
         score: 74,
         recommendation: 'MATCH',
         summary: 'Phù hợp một phần.',
-        model: 'qwen2.5:7b + rule-score-v2-dynamic-weights',
+        model: 'qwen2.5:3b + rule-score-v2-dynamic-weights',
         isFallback: false,
         rawResult: expect.objectContaining({
           version: 'ai-screening-v2-dynamic-weights',
@@ -983,7 +983,7 @@ describe('AiScreeningService', () => {
       strengths: [],
       concerns: ['offline'],
       rawResult: {},
-      model: 'qwen2.5:7b',
+      model: 'qwen2.5:3b',
       isFallback: true,
       errorMessage: 'offline',
     });
@@ -998,7 +998,7 @@ describe('AiScreeningService', () => {
       data: expect.objectContaining({
         ai_score: 0,
         ai_recommendation: 'LOW_MATCH',
-        ai_model: 'qwen2.5:7b + rule-score-v2-dynamic-weights',
+        ai_model: 'qwen2.5:3b + rule-score-v2-dynamic-weights',
         ai_raw_result: expect.objectContaining({
           version: 'ai-screening-v2-dynamic-weights',
           llmScore: 0,
@@ -1376,7 +1376,7 @@ describe('AiScreeningService', () => {
       strengths: [],
       concerns: ['offline'],
       rawResult: {},
-      model: 'qwen2.5:7b',
+      model: 'qwen2.5:3b',
       isFallback: true,
     });
 
@@ -1489,7 +1489,7 @@ describe('AiScreeningService', () => {
     expect(request.prompt).not.toContain('CV ứng viên:');
     expect(request).toEqual(
       expect.objectContaining({
-        model: 'qwen2.5:7b',
+        model: 'qwen2.5:3b',
         format: 'json',
         stream: false,
         options: { temperature: 0.1, num_predict: 900 },
@@ -1785,7 +1785,7 @@ describe('AiScreeningService', () => {
         strengths: [],
         concerns: [],
         rawResult: {},
-        model: 'qwen2.5:7b',
+        model: 'qwen2.5:3b',
         isFallback: false,
       });
 

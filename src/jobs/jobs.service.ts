@@ -4,12 +4,46 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { NotificationType } from '../generated/prisma/client.js';
+import { NotificationType, type Prisma } from '../generated/prisma/client.js';
 import { NotificationsService } from '../notifications/notifications.service.js';
 import { PrismaService } from '../prisma.service.js';
 import { CreateJobDto } from './dto/create-job.dto.js';
 import { SearchJobsQueryDto } from './dto/search-jobs.query.dto.js';
 import { UpdateJobDto } from './dto/update-job.dto.js';
+import { buildJobSearchWhere, type SearchUser } from './job-search.query.js';
+import { largeJobSearchMatch, searchInteger } from './job-search.mongo.js';
+import {
+  timeSearchOperation,
+  type SearchTimings,
+} from './job-search.diagnostics.js';
+
+const SEARCH_ORDER = [
+  { created_date: 'desc' },
+  { job_post_id: 'desc' },
+] satisfies Prisma.JobPostOrderByWithRelationInput[];
+
+const SEARCH_SELECT = {
+  job_post_id: true,
+  name: true,
+  job_title: true,
+  job_description: true,
+  candidate_requirements: true,
+  work_location: true,
+  work_type: true,
+  level: true,
+  salary: true,
+  is_active: true,
+  created_date: true,
+  Company: { select: { company_id: true, company_name: true, city: true } },
+  Category: { select: { category_id: true, name: true } },
+  JobType: { select: { job_type_id: true, job_type: true } },
+  JobPostSkill: {
+    take: 10,
+    select: { Skill: { select: { skill_name: true } } },
+  },
+} satisfies Prisma.JobPostSelect;
+
+type SearchJob = Prisma.JobPostGetPayload<{ select: typeof SEARCH_SELECT }>;
 
 const KNOWN_TECH_KEYWORDS = [
   'React',
@@ -208,11 +242,9 @@ export class JobsService {
 
   async searchJobs(
     query: SearchJobsQueryDto,
-    user?: { sub: number; role: 'SEEKER' | 'EMPLOYEE' | 'ADMIN' },
+    user?: SearchUser,
+    timings?: SearchTimings,
   ) {
-    const keyword = query.q?.trim();
-    const categoryKeyword = query.category?.trim();
-    const locationKeyword = query.location?.trim();
     const salaryMinRaw = query.salaryMin?.trim();
     const salaryMaxRaw = query.salaryMax?.trim();
     const page = query.page ?? 1;
@@ -242,142 +274,110 @@ export class JobsService {
       throw new BadRequestException('salaryMin khong duoc lon hon salaryMax');
     }
 
-    const where: Record<string, unknown> = {
-      is_active: true,
-    };
-
-    const excludeAppliedFilter = this.buildExcludeAppliedFilter(
-      query.excludeApplied,
-      user,
+    const where = await timeSearchOperation(timings, 'filterResolutionMs', () =>
+      buildJobSearchWhere(this.prisma, query, user, timings),
     );
-
-    if (excludeAppliedFilter) {
-      where.JobPostActivity = excludeAppliedFilter;
-    }
-
-    if (keyword) {
-      where.OR = [
-        { name: { contains: keyword, mode: 'insensitive' } },
-        { job_title: { contains: keyword, mode: 'insensitive' } },
-        { job_description: { contains: keyword, mode: 'insensitive' } },
-        { candidate_requirements: { contains: keyword, mode: 'insensitive' } },
-        { work_location: { contains: keyword, mode: 'insensitive' } },
-        {
-          Company: {
-            is: {
-              company_name: { contains: keyword, mode: 'insensitive' },
-            },
-          },
-        },
-        {
-          Category: {
-            is: {
-              name: { contains: keyword, mode: 'insensitive' },
-            },
-          },
-        },
-        {
-          JobType: {
-            is: {
-              job_type: { contains: keyword, mode: 'insensitive' },
-            },
-          },
-        },
-        {
-          JobPostSkill: {
-            some: {
-              Skill: {
-                is: {
-                  skill_name: { contains: keyword, mode: 'insensitive' },
-                },
-              },
-            },
-          },
-        },
-      ];
-    }
-
-    if (categoryKeyword) {
-      where.Category = {
-        is: {
-          name: { contains: categoryKeyword, mode: 'insensitive' },
-        },
-      };
-    }
-
-    if (locationKeyword) {
-      const locCondition = [
-        { work_location: { contains: locationKeyword, mode: 'insensitive' } },
-        {
-          Company: {
-            is: { city: { contains: locationKeyword, mode: 'insensitive' } },
-          },
-        },
-      ];
-      if (where.OR) {
-        where.AND = [{ OR: where.OR }, { OR: locCondition }];
-        delete where.OR;
-      } else {
-        where.OR = locCondition;
-      }
-    }
-
     const skip = (page - 1) * limit;
+    let rawJobs: SearchJob[];
+    let total: number;
+    const compactMatch = largeJobSearchMatch(where);
+    if (timings) timings.databaseStrategy = 'prisma';
 
-    const [rawJobs, total] = await Promise.all([
-      this.prisma.jobPost.findMany({
-        where,
-        orderBy: { created_date: 'desc' },
-        skip,
-        take: limit,
-        select: {
-          job_post_id: true,
-          name: true,
-          job_title: true,
-          job_description: true,
-          candidate_requirements: true,
-          work_location: true,
-          work_type: true,
-          level: true,
-          salary: true,
-          is_active: true,
-          created_date: true,
-          Company: {
-            select: {
-              company_id: true,
-              company_name: true,
-              city: true,
-            },
-          },
-          Category: {
-            select: {
-              category_id: true,
-              name: true,
-            },
-          },
-          JobType: {
-            select: {
-              job_type_id: true,
-              job_type: true,
-            },
-          },
-          JobPostSkill: {
-            take: 10,
-            select: {
-              Skill: {
-                select: {
-                  skill_id: true,
-                  skill_name: true,
-                  skill_type: true,
-                },
-              },
-            },
-          },
-        },
-      }),
-      this.prisma.jobPost.count({ where }),
-    ]);
+    const categoryIds =
+      typeof where.category_id === 'object' ? where.category_id.in : undefined;
+    if (Array.isArray(categoryIds) && categoryIds.length === 0) {
+      // The resolver produced an impossible required category predicate.
+      rawJobs = [];
+      total = 0;
+    } else if (salaryMinValue !== null || salaryMaxValue !== null) {
+      // Salary is legacy free text. Read only IDs/salaries before pagination;
+      // hydrate relations for the selected page, never for the whole result set.
+      const candidates = await timeSearchOperation(timings, 'findManyMs', () =>
+        this.prisma.jobPost.findMany({
+          where,
+          orderBy: SEARCH_ORDER,
+          select: { job_post_id: true, salary: true },
+        }),
+      );
+      if (timings) timings.candidateDocuments = candidates.length;
+      const salaryStart = timings ? performance.now() : 0;
+      const matches = candidates.filter((job) => {
+        const range = this.extractSalaryRange(job.salary);
+        return (
+          range.min !== null &&
+          range.max !== null &&
+          (salaryMinValue === null || range.min >= salaryMinValue) &&
+          (salaryMaxValue === null || range.max <= salaryMaxValue)
+        );
+      });
+      total = matches.length;
+      const ids = matches
+        .slice(skip, skip + limit)
+        .map((job) => job.job_post_id);
+      if (timings) timings.salaryFilterMs = performance.now() - salaryStart;
+      rawJobs = ids.length
+        ? await timeSearchOperation(timings, 'findManyMs', () =>
+            this.prisma.jobPost.findMany({
+              where: { job_post_id: { in: ids } },
+              orderBy: SEARCH_ORDER,
+              select: SEARCH_SELECT,
+            }),
+          )
+        : [];
+    } else if (compactMatch) {
+      if (timings) {
+        timings.countExecuted = true;
+        timings.databaseStrategy = 'compactMembership';
+      }
+      [rawJobs, total] = await Promise.all([
+        timeSearchOperation(timings, 'findManyMs', async () => {
+          const pageIds = await timeSearchOperation(timings, 'pageSelectionMs', () =>
+            this.prisma.jobPost.aggregateRaw({ pipeline: [
+              { $match: compactMatch },
+              { $sort: { created_date: -1, _id: -1 } },
+              { $skip: skip },
+              { $limit: limit },
+              { $project: { _id: 1 } },
+            ] }),
+          ) as unknown as { _id: unknown }[];
+          const ids = pageIds.map((row) => searchInteger(row._id));
+          // Keep Prisma's existing typed projection, relation ordering, per-job
+          // skill cap, date handling and mapper. Hydrate only the selected page.
+          return ids.length ? timeSearchOperation(timings, 'hydrationMs', () =>
+            this.prisma.jobPost.findMany({
+              where: { job_post_id: { in: ids } },
+              orderBy: SEARCH_ORDER,
+              select: SEARCH_SELECT,
+            }),
+          ) : [];
+        }),
+        timeSearchOperation(timings, 'countMs', async () => {
+          const rows = await this.prisma.jobPost.aggregateRaw({ pipeline: [
+            { $match: compactMatch }, { $count: 'total' },
+          ] }) as unknown as { total: unknown }[];
+          return rows.length ? searchInteger(rows[0].total) : 0;
+        }),
+      ]);
+    } else {
+      if (timings) timings.countExecuted = true;
+      [rawJobs, total] = await Promise.all([
+        timeSearchOperation(timings, 'findManyMs', () =>
+          this.prisma.jobPost.findMany({
+            where,
+            orderBy: SEARCH_ORDER,
+            skip,
+            take: limit,
+            select: SEARCH_SELECT,
+          }),
+        ),
+        timeSearchOperation(timings, 'countMs', () =>
+          this.prisma.jobPost.count({ where }),
+        ),
+      ]);
+    }
 
+    if (timings) timings.documentsReturned = rawJobs.length;
+    const mappingStart = timings ? performance.now() : 0;
     const mapped = rawJobs.map((job) => {
       const salaryRange = this.extractSalaryRange(job.salary);
       const categoryName = job.Category?.name ?? '';
@@ -410,30 +410,6 @@ export class JobsService {
       };
     });
 
-    const salaryFiltered =
-      salaryMinValue === null && salaryMaxValue === null
-        ? mapped
-        : mapped.filter((job) => {
-            const jobMinSalary = job.salaryRange.min ?? null;
-            const jobMaxSalary = job.salaryRange.max ?? null;
-
-            if (jobMinSalary === null || jobMaxSalary === null) {
-              return false;
-            }
-
-            let matchesSalaryMin = true;
-            if (salaryMinValue !== null) {
-              matchesSalaryMin = jobMinSalary >= salaryMinValue;
-            }
-
-            let matchesSalaryMax = true;
-            if (salaryMaxValue !== null) {
-              matchesSalaryMax = jobMaxSalary <= salaryMaxValue;
-            }
-
-            return matchesSalaryMin && matchesSalaryMax;
-          });
-
     const defaultLocations = [
       'Hồ Chí Minh',
       'Hà Nội',
@@ -445,7 +421,7 @@ export class JobsService {
 
     const locations = Array.from(
       new Set([
-        ...salaryFiltered
+        ...mapped
           .map((job) => job.location)
           .filter((name): name is string => Boolean(name)),
         ...defaultLocations,
@@ -454,13 +430,13 @@ export class JobsService {
 
     const categories = Array.from(
       new Set(
-        salaryFiltered
+        mapped
           .map((job) => job.category?.name)
           .filter((name): name is string => Boolean(name)),
       ),
     ).sort((a, b) => a.localeCompare(b));
 
-    const jobTypeCounts = salaryFiltered.reduce((counts, job) => {
+    const jobTypeCounts = mapped.reduce((counts, job) => {
       const value = this.normalizeEmploymentType(job.jobType?.job_type);
       counts.set(value, (counts.get(value) ?? 0) + 1);
       return counts;
@@ -475,11 +451,13 @@ export class JobsService {
     const programmingLanguages = KNOWN_TECH_KEYWORDS.map((skill) => ({
       label: skill,
       value: skill,
-      count: salaryFiltered.filter((job) => job.skills.includes(skill)).length,
+      count: mapped.filter((job) => job.skills.includes(skill)).length,
     }));
 
+    if (timings) timings.mappingMs = performance.now() - mappingStart;
+
     return {
-      jobs: salaryFiltered,
+      jobs: mapped,
       total,
       page,
       limit,

@@ -9,6 +9,7 @@ import {
   Post,
   Put,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -28,6 +29,7 @@ import { SearchJobsQueryDto } from './dto/search-jobs.query.dto.js';
 import { UpdateJobDto } from './dto/update-job.dto.js';
 import { EmployeeGuard } from './guards/employee.guard.js';
 import { JobsService } from './jobs.service.js';
+import type { SearchRequest } from './job-search.diagnostics.js';
 
 type RequestUser = {
   sub: number;
@@ -87,8 +89,9 @@ export class JobsController {
   search(
     @ReqUser() user: RequestUser | undefined,
     @Query() query: SearchJobsQueryDto,
+    @Req() request: SearchRequest,
   ) {
-    return this.jobsService.searchJobs(query, user);
+    return this.jobsService.searchJobs(query, user, request.jobSearchTimings);
   }
 
   @ApiOperation({ summary: 'Lay toan bo jobs (Auth optional)' })
@@ -151,7 +154,9 @@ export class JobsController {
     return this.jobsService.getJobDetail(id);
   }
 
-  @ApiOperation({ summary: 'Cap nhat job post theo id (yeu cau token recruiter)' })
+  @ApiOperation({
+    summary: 'Cap nhat job post theo id (yeu cau token recruiter)',
+  })
   @ApiParam({ name: 'id', example: 1, description: 'ID cua job post' })
   @ApiBearerAuth()
   @ApiBody({
@@ -184,19 +189,20 @@ export class JobsController {
     return this.jobsService.updateJob(id, user.sub, dto);
   }
 
-  @ApiOperation({ summary: 'Xoa job post theo id (soft delete, yeu cau token recruiter)' })
+  @ApiOperation({
+    summary: 'Xoa job post theo id (soft delete, yeu cau token recruiter)',
+  })
   @ApiParam({ name: 'id', example: 1, description: 'ID cua job post' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, EmployeeGuard)
   @Delete(':id')
-  remove(
-    @ReqUser() user: RequestUser,
-    @Param('id', ParseIntPipe) id: number,
-  ) {
+  remove(@ReqUser() user: RequestUser, @Param('id', ParseIntPipe) id: number) {
     return this.jobsService.deleteJob(id, user.sub);
   }
 
-  @ApiOperation({ summary: 'Kich hoat job post theo id (yeu cau token recruiter)' })
+  @ApiOperation({
+    summary: 'Kich hoat job post theo id (yeu cau token recruiter)',
+  })
   @ApiParam({ name: 'id', example: 1, description: 'ID cua job post' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, EmployeeGuard)
@@ -208,7 +214,9 @@ export class JobsController {
     return this.jobsService.activateJob(id, user.sub);
   }
 
-  @ApiOperation({ summary: 'Vo hieu hoa job post theo id (yeu cau token recruiter)' })
+  @ApiOperation({
+    summary: 'Vo hieu hoa job post theo id (yeu cau token recruiter)',
+  })
   @ApiParam({ name: 'id', example: 1, description: 'ID cua job post' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, EmployeeGuard)
